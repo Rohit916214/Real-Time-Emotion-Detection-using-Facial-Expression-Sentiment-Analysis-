@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Real-Time Emotion Analysis</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f7fa;
+            margin: 0;
+            padding: 20px;
+            color: #333;
+        }
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        h1 {
+            color: #4a6fa5;
+            text-align: center;
+        }
+        .video-container {
+            position: relative;
+            margin-bottom: 20px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            border-radius: 8px;
+            overflow: hidden;
+        }
+        #videoFeed {
+            width: 640px;
+            height: 480px;
+            background: #000;
+        }
+        .results {
+            margin-top: 20px;
+        }
+        button {
+            background: #4a6fa5;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 16px;
+            margin: 5px;
+            transition: background 0.3s;
+        }
+        button:hover {
+            background: #3a5a8c;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Real-Time Emotion Analysis</h1>
+
+        <div class="video-container">
+            <img id="videoFeed" src="{{ url_for('video_feed') }}">
+        </div>
+
+        <div class="results">
+            <h2>Detected Emotion: <span id="emotionResult">Neutral</span></h2>
+        </div>
+
+        <div>
+            <button onclick="stopCamera()">Stop Camera</button>
+            <button onclick="startCamera()">Start Camera</button>
+            <button onclick="shutdownApp()">Shutdown App</button>
+        </div>
+    </div>
+
+    <script>
+        function updateEmotion() {
+            fetch('/get_emotion')
+                .then(response => response.json())
+                .then(data => {
+                    document.getElementById('emotionResult').textContent = data.emotion || "No Emotion Detected";
+                })
+                .catch(error => console.error('Error fetching emotion:', error));
+        }
+
+        function stopCamera() {
+            fetch('/stop_camera');
+        }
+
+        function startCamera() {
+            fetch('/start_camera');
+        }
+
+        function shutdownApp() {
+            if (confirm("Are you sure you want to shutdown the app?")) {
+                fetch('/shutdown', { method: 'POST' });
+            }
+        }
+
+        setInterval(updateEmotion, 2000);
+    </script>
+</body>
+</html>
